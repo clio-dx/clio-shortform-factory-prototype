@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="클리오 숏폼 영상 제작 및 업로드 이력" />
+  <title>CLIO Shorts — 영상 목록</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%23ff2d6f'/%3E%3Cpath d='M39 18c-12-5-24 3-24 15s12 19 24 13' fill='none' stroke='white' stroke-width='8' stroke-linecap='round'/%3E%3Ccircle cx='45' cy='20' r='5' fill='%23ffd2df'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="videos.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="클리오 숏폼 스튜디오 홈"><span class="brand-mark">C</span><span>CLIO <b>SHORTS</b></span></a>
+    <nav aria-label="주요 메뉴"><a href="index.html">스튜디오</a><a href="index.html#automation">자동화</a><a class="active" href="videos.html">영상 목록</a><a href="admin.html">리포트</a></nav>
+    <div class="top-actions"><span class="credit usage"><i></i><span>9월 사용량</span><b>₩482,600 / ₩1,000,000</b></span><button class="avatar" aria-label="사용자 메뉴">MK</button></div>
+  </header>
+
+  <main class="video-main">
+    <section class="video-head">
+      <div><p class="eyebrow">CONTENT LIBRARY</p><h1>영상 목록</h1><p>제작부터 게시까지, 영상의 전체 이력과 채널 상태를 한곳에서 확인하세요.</p></div>
+      <div class="head-actions"><span>마지막 동기화 2분 전</span><a href="index.html" class="create-link">＋ 새 영상 만들기</a></div>
+    </section>
+
+    <section class="video-summary" aria-label="영상 현황 요약">
+      <article class="accent"><span>전체 영상</span><strong>126</strong><small>이번 달 +24</small></article>
+      <article><span>게시 완료</span><strong>98</strong><small><i class="green-dot"></i> 77.8%</small></article>
+      <article><span>예약 · 검수</span><strong>18</strong><small>오늘 6개 예정</small></article>
+      <article><span>미게시</span><strong>10</strong><small>업로드 필요</small></article>
+      <article class="auto-stat"><span>자동화 제작</span><strong>74</strong><small>전체의 58.7%</small></article>
+    </section>
+
+    <section class="library-card">
+      <header class="library-toolbar">
+        <div class="video-search"><span>⌕</span><input id="videoSearch" type="search" placeholder="영상명, 제품, 레퍼런스 검색" /></div>
+        <div class="filter-group">
+          <label>제작 방식<select id="methodFilter"><option value="all">전체</option><option value="ai">AI 생성</option><option value="beautyform">뷰티폼</option><option value="local">로컬 업로드</option></select></label>
+          <label>플랫폼<select id="platformFilter"><option value="all">전체</option><option value="instagram">Instagram</option><option value="youtube">YouTube</option></select></label>
+          <label>게시 상태<select id="statusFilter"><option value="all">전체</option><option value="published">게시 완료</option><option value="scheduled">예약 · 검수</option><option value="draft">미게시</option></select></label>
+        </div>
+      </header>
+
+      <div class="list-meta"><p><b id="visibleCount">6</b>개 영상</p><button id="sortButton">최신순 ↓</button></div>
+
+      <div class="video-table-wrap">
+        <table class="video-table">
+          <thead><tr><th>영상</th><th>제작 방식</th><th>제작 정보</th><th>업로드 방식</th><th>게시 플랫폼</th><th>상태 · 게시일</th><th></th></tr></thead>
+          <tbody id="videoRows">
+            <tr data-id="glow15" data-method="ai" data-platform="instagram youtube" data-status="published" data-search="광채가 켜지는 15초 킬커버 메쉬 글로우 쿠션 ugc">
+              <td><div class="video-identity"><div class="video-thumb"><img src="assets/clio-creator.png" alt="광채가 켜지는 15초 썸네일"><i>0:15</i><button aria-label="영상 재생">▶</button></div><div><b>광채가 켜지는 15초</b><span>킬커버 메쉬 글로우 쿠션</span><small>VID-0921-018</small></div></div></td>
+              <td><span class="method ai">✦ AI 생성</span><small>자동화 작업</small></td>
+              <td><b>Veo 3 Fast</b><span>1초 광채 전환 UGC</span><small>한국어 · 9:16</small></td>
+              <td><span class="upload-type auto">↻ 자동 업로드</span><small>킬커버 데일리 UGC</small></td>
+              <td><div class="platform-stack"><span class="platform instagram">◎ Instagram <i>게시</i></span><span class="platform youtube">▶ YouTube <i>게시</i></span></div></td>
+              <td><span class="state published">게시 완료</span><small>2026. 09. 21 · 09:02</small></td>
+              <td><button class="detail-button" data-detail="glow15">상세 보기</button></td>
+            </tr>
+
+            <tr data-id="lasting24" data-method="ai" data-platform="instagram" data-status="published" data-search="24시간 무너짐 없이 킬커버 메쉬 글로우 쿠션 지속력 공식 인스타그램">
+              <td><div class="video-identity"><div class="video-thumb product"><img src="assets/clio-product.png" alt="24시간 지속력 영상 썸네일"><i>0:20</i><button aria-label="영상 재생">▶</button></div><div><b>24시간, 무너짐 없이</b><span>킬커버 메쉬 글로우 쿠션</span><small>VID-0920-042</small></div></div></td>
+              <td><span class="method ai">✦ AI 생성</span><small>수동 생성</small></td>
+              <td><b>Veo 3 Fast</b><span>CLIO Instagram 24H 테스트</span><small>한국어 · 9:16</small></td>
+              <td><span class="upload-type manual">↑ 직접 업로드</span><small>담당자 MK</small></td>
+              <td><div class="platform-stack"><span class="platform instagram">◎ Instagram <i>게시</i></span></div></td>
+              <td><span class="state published">게시 완료</span><small>2026. 09. 20 · 18:00</small></td>
+              <td><button class="detail-button" data-detail="lasting24">상세 보기</button></td>
+            </tr>
+
+            <tr data-id="review28" data-method="beautyform" data-platform="youtube" data-status="scheduled" data-search="킬커버 핵심 리뷰 뷰티폼 유튜브 쇼츠">
+              <td><div class="video-identity"><div class="video-thumb"><img src="assets/clio-creator.png" alt="킬커버 핵심 리뷰 영상 썸네일"><i>0:28</i><button aria-label="영상 재생">▶</button></div><div><b>킬커버 핵심 리뷰</b><span>킬커버 메쉬 글로우 쿠션</span><small>VID-0920-031</small></div></div></td>
+              <td><span class="method beautyform">B 뷰티폼</span><small>가져오기</small></td>
+              <td><b>BeautyForm 원본</b><span>자막 · 마지막 CTA 편집</span><small>한국어 · 9:16</small></td>
+              <td><span class="upload-type schedule">◷ 예약 업로드</span><small>콘텐츠 캘린더</small></td>
+              <td><div class="platform-stack"><span class="platform youtube">▶ YouTube <i>예약</i></span></div></td>
+              <td><span class="state scheduled">게시 예약</span><small>2026. 09. 22 · 12:00</small></td>
+              <td><button class="detail-button" data-detail="review28">상세 보기</button></td>
+            </tr>
+
+            <tr data-id="palette" data-method="local" data-platform="instagram" data-status="scheduled" data-search="올테이크 신색상 발색 릴레이 로컬 업로드 인스타그램 검수">
+              <td><div class="video-identity"><div class="video-thumb abstract"><span>NEW<br>MOOD</span><i>0:17</i><button aria-label="영상 재생">▶</button></div><div><b>올테이크 신색상 발색 릴레이</b><span>페리페라 올테이크 무드 팔레트</span><small>VID-0919-027</small></div></div></td>
+              <td><span class="method local">⌁ 로컬 영상</span><small>드래그 · 드롭</small></td>
+              <td><b>palette_launch_v3.mp4</b><span>자막만 스튜디오 편집</span><small>한국어 · 9:16</small></td>
+              <td><span class="upload-type manual">↑ 직접 업로드</span><small>담당자 JY</small></td>
+              <td><div class="platform-stack"><span class="platform instagram pending">◎ Instagram <i>검수</i></span></div></td>
+              <td><span class="state review">검수 대기</span><small>등록 2026. 09. 19</small></td>
+              <td><button class="detail-button" data-detail="palette">상세 보기</button></td>
+            </tr>
+
+            <tr data-id="fairy" data-method="ai" data-platform="none" data-status="draft" data-search="쿠션 요정 ai 애니 미게시 구달 진정 선크림">
+              <td><div class="video-identity"><div class="video-thumb abstract pink"><span>✦</span><i>0:12</i><button aria-label="영상 재생">▶</button></div><div><b>쿠션 요정 AI 애니</b><span>구달 어성초 진정 수분 선크림</span><small>VID-0919-011</small></div></div></td>
+              <td><span class="method ai">✦ AI 생성</span><small>수동 생성</small></td>
+              <td><b>Runway Gen-4</b><span>쿠션 요정 AI 애니</span><small>日本語 · 1:1</small></td>
+              <td><span class="upload-type none">— 미설정</span><small>업로드 이력 없음</small></td>
+              <td><div class="platform-stack"><span class="platform empty">플랫폼 미선택</span></div></td>
+              <td><span class="state draft">미게시</span><small>생성 2026. 09. 19</small></td>
+              <td><button class="detail-button" data-detail="fairy">상세 보기</button></td>
+            </tr>
+
+            <tr data-id="tint" data-method="ai" data-platform="instagram youtube" data-status="published" data-search="잉크 무드 글로이 컬러 비교 페리페라 인스타그램 유튜브 자동화">
+              <td><div class="video-identity"><div class="video-thumb product"><img src="assets/clio-product.png" alt="잉크 무드 글로이 컬러 비교 영상 썸네일"><i>0:16</i><button aria-label="영상 재생">▶</button></div><div><b>잉크 무드 글로이 컬러 비교</b><span>페리페라 잉크 무드 글로이 틴트</span><small>VID-0918-054</small></div></div></td>
+              <td><span class="method ai">✦ AI 생성</span><small>자동화 작업</small></td>
+              <td><b>Kling 2.1</b><span>비트컷 발색 릴레이</span><small>English · 9:16</small></td>
+              <td><span class="upload-type auto">↻ 자동 업로드</span><small>페리페라 신색상 런칭</small></td>
+              <td><div class="platform-stack"><span class="platform instagram">◎ Instagram <i>게시</i></span><span class="platform youtube">▶ YouTube <i>게시</i></span></div></td>
+              <td><span class="state published">게시 완료</span><small>2026. 09. 18 · 18:00</small></td>
+              <td><button class="detail-button" data-detail="tint">상세 보기</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="no-videos" id="noVideos" hidden><span>⌕</span><h3>조건에 맞는 영상이 없어요</h3><p>검색어나 필터를 변경해보세요.</p></div>
+      <footer class="library-footer"><span>1–6 / 126</span><div><button disabled>‹</button><button class="active">1</button><button>2</button><button>3</button><button>…</button><button>21</button><button>›</button></div></footer>
+    </section>
+  </main>
+
+  <div id="videoModal"></div>
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+  <script src="videos.js"></script>
+</body>
+</html>
