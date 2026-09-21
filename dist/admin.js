@@ -29,3 +29,12 @@ document.querySelector('#periodSelect').addEventListener('change', event => {
 document.querySelector('#exportButton').addEventListener('click', () => toast('리포트를 준비했어요', '샘플 CSV 내보내기 동작입니다.'));
 
 document.querySelectorAll('.date-control button').forEach(button => button.addEventListener('click', () => toast('비교 기간을 변경했어요', '2026. 08. 11 — 08. 31')));
+
+document.querySelectorAll('[data-recommend]').forEach(button => button.addEventListener('click', () => {
+  const recommendation = button.dataset.recommend;
+  button.textContent = '추천 설정 준비 중...';
+  button.disabled = true;
+  setTimeout(() => {
+    location.href = `index.html?recommend=${recommendation}&publish=1`;
+  }, 420);
+}));
