@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="클리오 제품과 레퍼런스로 숏폼을 만들고 배포하는 자동화 프로토타입" />
+  <title>CLIO Shortform Studio</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%23ff2d6f'/%3E%3Cpath d='M39 18c-12-5-24 3-24 15s12 19 24 13' fill='none' stroke='white' stroke-width='8' stroke-linecap='round'/%3E%3Ccircle cx='45' cy='20' r='5' fill='%23ffd2df'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="extended.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="클리오 숏폼 스튜디오 홈"><span class="brand-mark">C</span><span>CLIO <b>SHORTS</b></span></a>
+    <nav aria-label="주요 메뉴"><a class="active" href="index.html">스튜디오</a><a href="#automation">자동화</a><a href="admin.html">리포트</a></nav>
+    <div class="top-actions"><span class="credit"><i></i> API 크레딧 <b>₩182,400</b></span><button class="avatar" aria-label="사용자 메뉴">MK</button></div>
+  </header>
+
+  <main>
+    <section class="page-head">
+      <div><p class="eyebrow">AI CONTENT WORKSPACE</p><h1>숏폼 스튜디오</h1><p>제품과 레퍼런스를 조합해 첫 시안을 바로 만들어보세요.</p></div>
+      <ol class="steps" aria-label="제작 단계"><li class="on"><b>1</b>제품</li><li><b>2</b>레퍼런스</li><li><b>3</b>생성</li></ol>
+    </section>
+
+    <section class="workspace">
+      <aside class="panel product-panel">
+        <div class="panel-title"><div><span class="step-no">01</span><h2>제품 선택</h2></div><button class="text-button">+ 제품 추가</button></div>
+        <label class="product-card selected">
+          <input id="productCheck" type="checkbox" checked />
+          <img src="assets/clio-product.png" alt="핑크 쿠션과 립 제품 샘플" />
+          <span class="check-dot"></span>
+          <span class="product-copy"><b>킬커버 메쉬 글로우 쿠션</b><small>쿠션 · 32,000원</small></span>
+        </label>
+        <div class="field-grid">
+          <label>품명<input value="킬커버 메쉬 글로우 쿠션" /></label>
+          <label>가격<input value="32,000원" /></label>
+          <label class="full">강점<input value="얇게 밀착되는 24시간 물광 커버" /></label>
+          <label class="full">주요 성분<input value="히알루론산, 판테놀, 세라마이드" /></label>
+          <label>카테고리<select><option>쿠션</option><option>선</option><option>기초</option><option>베이스</option></select></label>
+          <label class="full">상세페이지 URL<input value="https://clubclio.co.kr/product/kill-cover" /></label>
+        </div>
+        <label class="upload-box"><span>＋</span><b>제품 컷 또는 영상 추가</b><small>PNG, JPG, MP4 · 최대 50MB</small><input type="file" accept="image/*,video/*" /></label>
+      </aside>
+
+      <section class="panel reference-panel">
+        <div class="panel-title"><div><span class="step-no">02</span><h2>레퍼런스 찾기</h2></div><button class="text-button" id="templateButton">프롬프트 템플릿 ↗</button></div>
+        <div class="search-row"><input id="refSearch" type="search" placeholder="영상 스타일, 키워드 검색" /><button aria-label="검색">⌕</button></div>
+        <div class="chips" id="categoryChips"><button class="active" data-category="all">전체</button><button data-category="makeup">메이크업</button><button data-category="ugc">UGC</button><button data-category="fun">웃긴 영상</button><button data-category="challenge">챌린지</button><button data-category="ai">AI 애니</button><button data-category="toon">썰툰</button></div>
+        <div class="source-tabs" role="tablist"><button class="active">Instagram <span>24</span></button><button>TikTok <span>18</span></button><button>Viral <span>12</span></button></div>
+        <div class="reference-grid" id="referenceGrid">
+          <button class="reference-card" data-category="makeup ugc" data-title="1초 광채 전환 UGC"><img src="assets/clio-creator.png" alt="쿠션을 사용하는 뷰티 크리에이터" /><span class="duration">0:18</span><span class="play">▶</span><span class="ref-copy"><b>1초 광채 전환 UGC</b><small>조회 1.2M · 저장 38K</small></span></button>
+          <button class="reference-card" data-category="makeup" data-title="Before → After 커버 테스트"><img src="assets/clio-product.png" alt="핑크 쿠션 제품" /><span class="duration">0:24</span><span class="play">▶</span><span class="ref-copy"><b>Before → After</b><small>조회 842K · 저장 21K</small></span></button>
+          <button class="reference-card art-card peach" data-category="ai toon" data-title="쿠션 요정 AI 애니"><span class="art-emoji">✦</span><span class="duration">0:15</span><span class="play">▶</span><span class="ref-copy"><b>쿠션 요정 AI 애니</b><small>조회 568K · 완주율 82%</small></span></button>
+          <button class="reference-card art-card cherry" data-category="fun challenge" data-title="퇴근 10초 수정화장"><span class="art-emoji">10″</span><span class="duration">0:21</span><span class="play">▶</span><span class="ref-copy"><b>퇴근 10초 챌린지</b><small>조회 2.1M · 공유 44K</small></span></button>
+        </div>
+      </section>
+
+      <aside class="panel generate-panel">
+        <div class="panel-title"><div><span class="step-no">03</span><h2>생성 설정</h2></div><span class="ai-badge">AI</span></div>
+        <div class="selection-summary"><span class="thumb"><img src="assets/clio-product.png" alt="" /></span><p><small>선택 제품</small><b id="selectedProductText">킬커버 메쉬 글로우 쿠션</b></p><span>＋</span><div class="empty-ref" id="selectedRefThumb">?</div></div>
+        <label>AI 모델<select id="modelSelect"><option>Veo 3 Fast · 추천</option><option>Runway Gen-4</option><option>Kling 2.1</option><option>Sora</option></select></label>
+        <fieldset><legend>영상 언어</legend><div class="segmented" id="languageTabs"><button class="active" type="button">한국어</button><button type="button">English</button><button type="button">日本語</button></div></fieldset>
+        <label>영상 방향성<textarea id="directionPrompt" rows="5">크림처럼 얇게 밀착되는 제형과 24시간 광채 지속력을 강조해주세요. 첫 2초에 피부 클로즈업 훅을 넣어주세요.</textarea></label>
+        <div class="format-row"><label>길이<select><option>15초</option><option>30초</option><option>60초</option></select></label><label>비율<select><option>9:16</option><option>1:1</option><option>4:5</option></select></label></div>
+        <div class="estimate"><span>예상 비용</span><b>₩3,200 <small>· 약 3분</small></b></div>
+        <button class="primary-button" id="createButton" disabled><span>✦</span> 영상 만들기</button>
+        <button class="secondary-button" id="automationButton">자동 생성 · 업로드 설정</button>
+      </aside>
+    </section>
+
+    <section class="results-section" id="resultsSection">
+      <div class="section-heading"><div><p class="eyebrow">RECENT OUTPUT</p><h2>생성 결과물</h2></div><button class="secondary-button compact" id="beautyFormButton">뷰티폼에서 가져오기</button></div>
+      <div class="empty-state" id="resultEmpty"><span>✦</span><h3>아직 생성된 영상이 없어요</h3><p>제품과 레퍼런스를 선택하면 첫 시안을 만들 수 있어요.</p></div>
+      <div class="result-content" id="resultContent" hidden></div>
+    </section>
+  </main>
+  <div id="modalRoot"></div>
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
