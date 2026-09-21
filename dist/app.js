@@ -87,18 +87,36 @@ function filterReferences() {
   $('.result-count').textContent = `${count}개 추천`;
 }
 
+const categoryOptions = {
+  trend: [
+    { value:'all', label:'전체' }, { value:'ugc', label:'UGC' }, { value:'ai', label:'AI 애니' },
+    { value:'toon', label:'썰툰' }, { value:'challenge', label:'챌린지' }, { value:'makeup', label:'메이크업' }
+  ],
+  official: [
+    { value:'instagram', label:'Instagram' }, { value:'youtube', label:'YouTube' }
+  ]
+};
+
+function renderCategoryChips(reset = false) {
+  const options = categoryOptions[activeSource];
+  if (reset || !options.some(option => option.value === activeCategory)) activeCategory = options[0].value;
+  $('#categoryChips').innerHTML = options.map(option => `<button class="${option.value === activeCategory ? 'active' : ''}" data-category="${option.value}">${option.label}</button>`).join('');
+  $$('#categoryChips button').forEach(button => button.addEventListener('click', () => {
+    $$('#categoryChips button').forEach(item => item.classList.remove('active'));
+    button.classList.add('active');
+    activeCategory = button.dataset.category;
+    filterReferences();
+  }));
+}
+
 $('#productCheck').addEventListener('change', updateCreateState);
 $$('.reference-card').forEach(card => card.addEventListener('click', () => selectReference(card)));
-$$('#categoryChips button').forEach(button => button.addEventListener('click', () => {
-  $$('#categoryChips button').forEach(item => item.classList.remove('active'));
-  button.classList.add('active');
-  activeCategory = button.dataset.category;
-  filterReferences();
-}));
+renderCategoryChips();
 $$('.source-tabs button').forEach(button => button.addEventListener('click', () => {
   $$('.source-tabs button').forEach(item => item.classList.remove('active'));
   button.classList.add('active');
   activeSource = button.dataset.source;
+  renderCategoryChips(true);
   filterReferences();
   showToast(button.childNodes[0].textContent.trim(), activeSource === 'official' ? '공식 계정에 업로드된 영상만 모았어요.' : '최근 반응이 빠르게 오르는 포맷이에요.');
 }));
@@ -235,7 +253,7 @@ $('#localDropzone').addEventListener('click',()=>$('#localVideoInput').click());
 
 $('#beautyFormButton').addEventListener('click',()=>{openModal({kicker:'BEAUTYFORM SYNC',title:'뷰티폼 영상 가져오기',wide:true,content:`<div class="sync-head"><span class="sync-logo">B</span><div><b>BeautyForm 연결됨</b><small>마지막 동기화: 방금 전</small></div><button>새로고침</button></div><div class="import-grid">${['신상 쿠션 3초 훅','메쉬 제형 클로즈업','여름 지속력 테스트'].map((name,index)=>`<label class="import-card"><input type="checkbox" ${index<2?'checked':''}><span><img src="assets/${index===1?'clio-product.png':'clio-creator.png'}" alt="${name}"><i>0:${15+index*3}</i></span><b>${name}</b><small>2026.09.${18-index}</small></label>`).join('')}</div>`,actions:'<button class="ghost-modal" data-close>취소</button><button class="modal-primary" id="importConfirm">선택 영상 가져오기</button>'});$('[data-close]').addEventListener('click',closeModal);$('#importConfirm').addEventListener('click',()=>{const count=$$('.import-card input:checked').length;closeModal();if(count){$('#localDropzone').hidden=true;renderResults();showToast(`뷰티폼 영상 ${count}개를 가져왔어요`);}});});
 
-function applyReportRecommendation(){const params=new URLSearchParams(location.search);const recommendation=params.get('recommend');if(!recommendation)return;const map={short:{category:'ugc',duration:'15초',prompt:'15초 이하로 핵심 장면만 남겨 완주율을 높여주세요. 첫 1초에 제품과 피부 결과를 동시에 보여주세요.'},keyword:{category:'makeup',duration:'15초',prompt:'요즘 반응이 높은 메쉬 쿠션, 물광, 얇은 밀착 키워드를 첫 3초 자막과 내레이션에 자연스럽게 포함해주세요.'},ugc:{category:'ugc',duration:'15초',prompt:'셀프캠 사용 전·후 비교 구조로 제작해주세요. 한쪽 얼굴에만 적용한 차이를 첫 2초에 보여주고 솔직한 UGC 말투를 사용해주세요.'},official:{category:'makeup',duration:'30초',prompt:'클리오 공식 SNS의 24시간 지속력 테스트 구조를 활용해 시간대별 피부 상태를 신뢰감 있게 보여주세요.'}};const data=map[recommendation]||map.short;activeSource=recommendation==='official'?'official':'trend';$$('.source-tabs button').forEach(button=>button.classList.toggle('active',button.dataset.source===activeSource));filterReferences();const card=$$('.reference-card').find(item=>!item.hidden&&item.dataset.category.includes(data.category))||$('.reference-card:not([hidden])');if(card)selectReference(card);$('#durationSelect').value=data.duration;$('#directionPrompt').value=data.prompt;pendingAutoPublish=params.get('publish')==='1';showToast('리포트 제안을 적용했어요','추천 설정으로 자동 생성을 시작합니다.');setTimeout(()=>{if(!$('#createButton').disabled)startGeneration();},500);}
+function applyReportRecommendation(){const params=new URLSearchParams(location.search);const recommendation=params.get('recommend');if(!recommendation)return;const map={short:{category:'ugc',duration:'15초',prompt:'15초 이하로 핵심 장면만 남겨 완주율을 높여주세요. 첫 1초에 제품과 피부 결과를 동시에 보여주세요.'},keyword:{category:'makeup',duration:'15초',prompt:'요즘 반응이 높은 메쉬 쿠션, 물광, 얇은 밀착 키워드를 첫 3초 자막과 내레이션에 자연스럽게 포함해주세요.'},ugc:{category:'ugc',duration:'15초',prompt:'셀프캠 사용 전·후 비교 구조로 제작해주세요. 한쪽 얼굴에만 적용한 차이를 첫 2초에 보여주고 솔직한 UGC 말투를 사용해주세요.'},official:{category:'instagram',duration:'30초',prompt:'클리오 공식 Instagram의 24시간 지속력 테스트 구조를 활용해 시간대별 피부 상태를 신뢰감 있게 보여주세요.'}};const data=map[recommendation]||map.short;activeSource=recommendation==='official'?'official':'trend';activeCategory=data.category;$$('.source-tabs button').forEach(button=>button.classList.toggle('active',button.dataset.source===activeSource));renderCategoryChips();filterReferences();const card=$$('.reference-card').find(item=>!item.hidden&&item.dataset.category.includes(data.category))||$('.reference-card:not([hidden])');if(card)selectReference(card);$('#durationSelect').value=data.duration;$('#directionPrompt').value=data.prompt;pendingAutoPublish=params.get('publish')==='1';showToast('리포트 제안을 적용했어요','추천 설정으로 자동 생성을 시작합니다.');setTimeout(()=>{if(!$('#createButton').disabled)startGeneration();},500);}
 
 renderPromptSuggestions();
 document.addEventListener('keydown',event=>{if(event.key==='Escape')closeModal();});
