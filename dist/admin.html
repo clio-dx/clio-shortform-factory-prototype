@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="클리오 숏폼 성과와 ROI를 확인하는 관리자 리포트" />
+  <title>CLIO Shorts — 관리자 리포트</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%23ff2d6f'/%3E%3Cpath d='M39 18c-12-5-24 3-24 15s12 19 24 13' fill='none' stroke='white' stroke-width='8' stroke-linecap='round'/%3E%3Ccircle cx='45' cy='20' r='5' fill='%23ffd2df'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="클리오 숏폼 스튜디오 홈"><span class="brand-mark">C</span><span>CLIO <b>SHORTS</b></span></a>
+    <nav aria-label="주요 메뉴"><a href="index.html">스튜디오</a><a href="index.html#automation">자동화</a><a class="active" href="admin.html">리포트</a></nav>
+    <div class="top-actions"><span class="credit"><i></i> 데이터 최신 <b>2분 전</b></span><button class="avatar" aria-label="사용자 메뉴">MK</button></div>
+  </header>
+
+  <main class="report-main">
+    <section class="report-head">
+      <div><p class="eyebrow">PERFORMANCE CENTER</p><h1>콘텐츠 성과</h1><p>영상 제작 비용부터 채널 반응, 매출 기여까지 한 번에 확인하세요.</p></div>
+      <div class="report-actions"><div class="date-control"><button aria-label="이전 기간">‹</button><span>2026. 09. 01 — 09. 21</span><button aria-label="다음 기간">›</button></div><button class="export-button" id="exportButton">리포트 내보내기 ↗</button></div>
+    </section>
+
+    <section class="metric-grid">
+      <article class="metric-card primary"><div class="metric-label"><span>생성 영상</span><i>01</i></div><strong data-metric="videos">126</strong><p><b>↑ 18.9%</b> 이전 기간 대비</p><div class="microbars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></article>
+      <article class="metric-card"><div class="metric-label"><span>총 조회수</span><i>02</i></div><strong data-metric="views">3.84M</strong><p><b>↑ 24.1%</b> 이전 기간 대비</p><svg class="spark" viewBox="0 0 220 45" preserveAspectRatio="none"><path d="M0 37 C25 35,32 28,55 29 S88 35,105 20 S140 24,158 12 S194 20,220 4" fill="none" stroke="#ff2d6f" stroke-width="3"/><path d="M0 37 C25 35,32 28,55 29 S88 35,105 20 S140 24,158 12 S194 20,220 4 L220 45 L0 45Z" fill="url(#g)"/><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ff2d6f" stop-opacity=".2"/><stop offset="1" stop-color="#ff2d6f" stop-opacity="0"/></linearGradient></defs></svg></article>
+      <article class="metric-card"><div class="metric-label"><span>평균 ENG</span><i>03</i></div><strong data-metric="eng">5.8%</strong><p><b>↑ 0.7%p</b> 목표 5.0%</p><div class="gauge"><i></i><span>목표 대비 116%</span></div></article>
+      <article class="metric-card dark"><div class="metric-label"><span>콘텐츠 ROI</span><i>04</i></div><strong data-metric="roi">4.2<span>x</span></strong><p><b>+0.8x</b> 이전 기간 대비</p><div class="roi-mini"><span>API 비용 <b>₩2.86M</b></span><span>기여 매출 <b>₩12.1M</b></span></div></article>
+    </section>
+
+    <section class="report-grid">
+      <article class="report-card trend-card">
+        <header><div><h2>조회수 · 참여율 추이</h2><p>일별 업로드 콘텐츠 기준</p></div><div class="legend"><span><i class="pink-dot"></i> 조회수</span><span><i class="black-dot"></i> ENG</span></div></header>
+        <div class="trend-wrap"><div class="y-labels"><span>600K</span><span>400K</span><span>200K</span><span>0</span></div><svg viewBox="0 0 780 260" preserveAspectRatio="none" aria-label="조회수와 참여율 추이 그래프"><g class="grid-lines"><line x1="0" y1="20" x2="780" y2="20"/><line x1="0" y1="90" x2="780" y2="90"/><line x1="0" y1="160" x2="780" y2="160"/><line x1="0" y1="230" x2="780" y2="230"/></g><path class="area" d="M0 215 C55 200,80 175,120 184 S205 166,250 171 S335 118,380 131 S455 92,505 107 S588 62,635 78 S720 32,780 45 L780 230 L0 230Z"/><path class="view-line" d="M0 215 C55 200,80 175,120 184 S205 166,250 171 S335 118,380 131 S455 92,505 107 S588 62,635 78 S720 32,780 45"/><path class="eng-line" d="M0 168 C55 178,80 145,120 151 S205 124,250 143 S335 108,380 119 S455 98,505 116 S588 85,635 95 S720 68,780 73"/></svg><div class="x-labels"><span>9/1</span><span>9/5</span><span>9/9</span><span>9/13</span><span>9/17</span><span>9/21</span></div></div>
+      </article>
+
+      <article class="report-card roi-card"><header><div><h2>비용 대비 성과</h2><p>AI 모델 · 업로드 비용 포함</p></div><button aria-label="정보">i</button></header><div class="roi-ring"><div><strong>4.2<span>x</span></strong><small>ROI</small></div></div><div class="cost-row"><span><i class="cost-dot"></i> API · 제작비</span><b>₩2,860,000</b></div><div class="cost-row"><span><i class="revenue-dot"></i> 기여 매출</span><b>₩12,120,000</b></div><div class="roi-note"><span>영상 1개당 비용</span><b>₩22,698</b></div></article>
+    </section>
+
+    <section class="report-card table-card">
+      <header><div><h2>플랫폼 성과</h2><p>업로드된 126개 영상의 통합 지표</p></div><div class="table-filters"><select id="periodSelect"><option value="21">최근 21일</option><option value="7">최근 7일</option><option value="30">최근 30일</option></select><button class="active" data-platform="all">전체</button><button data-platform="instagram">Instagram</button><button data-platform="tiktok">TikTok</button><button data-platform="youtube">YouTube</button></div></header>
+      <div class="table-scroll"><table><thead><tr><th>플랫폼</th><th>업로드</th><th>조회수</th><th>평균 ENG</th><th>완주율</th><th>기여 매출</th><th>ROI</th><th>추이</th></tr></thead><tbody id="platformRows">
+        <tr data-platform="instagram"><td><span class="table-platform instagram">◎</span><b>Instagram</b></td><td>54</td><td>1,680,240</td><td><b>6.2%</b></td><td>34.8%</td><td>₩5.48M</td><td><em>4.6x</em></td><td><span class="up">↑ 22.4%</span></td></tr>
+        <tr data-platform="tiktok"><td><span class="table-platform tiktok">♪</span><b>TikTok</b></td><td>48</td><td>1,720,860</td><td><b>6.8%</b></td><td>41.2%</td><td>₩5.12M</td><td><em>4.4x</em></td><td><span class="up">↑ 31.7%</span></td></tr>
+        <tr data-platform="youtube"><td><span class="table-platform youtube">▶</span><b>YouTube</b></td><td>24</td><td>438,900</td><td><b>3.1%</b></td><td>52.6%</td><td>₩1.52M</td><td><em>2.8x</em></td><td><span class="down">↓ 4.2%</span></td></tr>
+      </tbody></table></div>
+    </section>
+
+    <section class="top-content">
+      <div class="section-title"><div><p class="eyebrow">TOP CONTENT</p><h2>성과가 좋은 영상</h2></div><a href="index.html#resultsSection">전체 결과물 보기 →</a></div>
+      <div class="top-grid">
+        <article><div class="rank">01</div><img src="assets/clio-creator.png" alt="광채 쿠션 숏폼 썸네일"><div><span class="platform-tag">TikTok</span><h3>출근 10초, 광채가 켜지는 순간</h3><p>조회 628K · ENG 8.9%</p><b>ROI 7.1x</b></div></article>
+        <article><div class="rank">02</div><img src="assets/clio-product.png" alt="쿠션 제품 숏폼 썸네일"><div><span class="platform-tag insta-tag">Instagram</span><h3>32,000원 쿠션의 반전 커버력</h3><p>조회 492K · ENG 7.8%</p><b>ROI 6.4x</b></div></article>
+        <article><div class="rank">03</div><div class="abstract-thumb">24H</div><div><span class="platform-tag youtube-tag">YouTube</span><h3>오후 6시에도 그대로일까?</h3><p>조회 318K · ENG 5.2%</p><b>ROI 5.7x</b></div></article>
+      </div>
+    </section>
+  </main>
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+  <script src="admin.js"></script>
+</body>
+</html>
