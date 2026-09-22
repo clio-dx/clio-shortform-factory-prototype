@@ -8,6 +8,10 @@ let activeCategory = 'all';
 let generationTimer = null;
 let pendingAutoPublish = false;
 let currentProduct = null;
+let productListIndexes = [0, 2, 4];
+let selectedProductIndexes = new Set([0, 2]);
+let studioResultsReady = false;
+let externalResults = [];
 
 const productCatalog = [
   { brand:'CLIO', name:'킬커버 메쉬 글로우 쿠션', category:'쿠션', price:'32,000원', strength:'얇게 밀착되는 24시간 물광 커버', ingredients:'히알루론산, 판테놀, 세라마이드', url:'https://clubclio.co.kr/product/kill-cover', image:'clio-product.png' },
@@ -59,10 +63,12 @@ function openModal({ title, kicker = '', content, actions = '', wide = false }) 
 }
 
 function updateCreateState() {
-  const checked = $('#productCheck').checked;
-  $('#createButton').disabled = !(checked && selectedReference);
-  $('.product-card').classList.toggle('selected', checked);
-  $('.check-dot').style.display = checked ? '' : 'none';
+  const hasProducts = selectedProductIndexes.size > 0;
+  $('#createButton').disabled = !(hasProducts && selectedReference);
+  const selected = [...selectedProductIndexes].map(index => productCatalog[index]);
+  if (selected.length) currentProduct = selected[0];
+  $('#selectedProductText').textContent = selected.length ? `${selected[0].name}${selected.length > 1 ? ` 외 ${selected.length - 1}개` : ''}` : '제품을 선택해주세요';
+  if ($('#productSelectedCount')) $('#productSelectedCount').textContent = selected.length;
 }
 
 function selectReference(card) {
@@ -109,7 +115,6 @@ function renderCategoryChips(reset = false) {
   }));
 }
 
-$('#productCheck').addEventListener('change', updateCreateState);
 $$('.reference-card').forEach(card => card.addEventListener('click', () => selectReference(card)));
 renderCategoryChips();
 $$('.source-tabs button').forEach(button => button.addEventListener('click', () => {
@@ -140,44 +145,58 @@ $$('#languageTabs button').forEach(button => button.addEventListener('click', ()
   $$('#languageTabs button').forEach(item => item.classList.remove('active'));
   button.classList.add('active');
   selectedLanguage = button.textContent;
-  $('#directionPrompt').value = promptTranslations[selectedLanguage];
-  showToast(`${selectedLanguage} 기본 프롬프트로 변경했어요`);
+  showToast(`영상 언어를 ${selectedLanguage}로 설정했어요`, '영상 방향성은 작성한 한국어 내용을 그대로 유지합니다.');
 }));
 
 $('.upload-box input').addEventListener('change', event => { if (event.target.files[0]) showToast('제품 파일을 추가했어요', event.target.files[0].name); });
 
-function applyProduct(product) {
-  currentProduct = product;
-  $('#productCardName').textContent = product.name;
-  $('#productCardMeta').textContent = `${product.brand} · ${product.category} · ${product.price}`;
-  $('#selectedProductText').textContent = product.name;
-  $('#productNameInput').value = product.name;
-  $('#productPriceInput').value = product.price;
-  $('#productStrengthInput').value = product.strength;
-  $('#ingredientsInput').value = product.ingredients;
-  $('#productUrlInput').value = product.url;
-  $('#ingredientStatus').textContent = product.ingredients ? '상세페이지 분석 완료' : '직접 입력 필요';
-  $('#ingredientStatus').classList.toggle('manual', !product.ingredients);
-  $('#ingredientSource').textContent = product.ingredients ? '상세페이지에서 자동 입력됨' : '페이지에 성분 정보가 없어 직접 입력하거나 태그를 선택해주세요.';
-  renderPromptSuggestions();
-  showToast(`${product.brand} 제품을 선택했어요`, product.name);
+function renderProductSelections() {
+  $('#selectedProducts').innerHTML = productListIndexes.map(index => {
+    const product = productCatalog[index];
+    const checked = selectedProductIndexes.has(index);
+    return `<article class="multi-product-card ${checked ? 'selected' : ''}" data-product-card="${index}"><label><input class="product-selector" type="checkbox" data-product="${index}" ${checked ? 'checked' : ''}><span class="multi-check">✓</span><img src="assets/${product.image}" alt="${product.name}"><span class="multi-product-copy"><b>${product.name}</b><small>${product.brand} · ${product.category}</small></span></label><button class="product-edit" data-edit-product="${index}">편집</button></article>`;
+  }).join('');
+  $$('.product-selector').forEach(input => input.addEventListener('change', () => {
+    const index = Number(input.dataset.product);
+    input.checked ? selectedProductIndexes.add(index) : selectedProductIndexes.delete(index);
+    input.closest('.multi-product-card').classList.toggle('selected', input.checked);
+    updateCreateState();
+    renderPromptSuggestions();
+  }));
+  $$('.product-edit').forEach(button => button.addEventListener('click', () => productEditModal(Number(button.dataset.editProduct))));
+  updateCreateState();
+}
+
+function productEditModal(index) {
+  const product = productCatalog[index];
+  openModal({ kicker:'PRODUCT DETAIL', title:'제품 정보 편집', wide:true, content:`<div class="product-edit-layout"><div class="product-edit-preview"><img src="assets/${product.image}" alt="${product.name}"><span>${product.brand}</span><b>${product.name}</b><small>목록에서는 핵심 정보만 표시됩니다.</small></div><div class="modal-form two-col"><label>품명<input id="productNameInput" value="${product.name}"></label><label>가격<input id="productPriceInput" value="${product.price}"></label><label class="span-2">강점<input id="productStrengthInput" value="${product.strength}"></label><label class="span-2 ingredient-field"><span>주요 성분 <em id="ingredientStatus" class="${product.ingredients ? '' : 'manual'}">${product.ingredients ? '상세페이지 분석 완료' : '직접 입력 필요'}</em></span><input id="ingredientsInput" value="${product.ingredients}"><small id="ingredientSource">${product.ingredients ? '상세페이지에서 자동 입력됨' : '직접 입력하거나 효능 태그를 선택해주세요.'}</small><div class="ingredient-tags" id="ingredientTags"><button type="button">수분</button><button type="button">진정</button><button type="button">장벽</button><button type="button">광채</button></div></label><label>카테고리<select id="productCategoryInput"><option ${product.category==='쿠션'?'selected':''}>쿠션</option><option ${product.category==='선'?'selected':''}>선</option><option ${product.category==='기초'?'selected':''}>기초</option><option ${product.category==='베이스'?'selected':''}>베이스</option><option ${product.category==='립'?'selected':''}>립</option><option ${product.category==='아이'?'selected':''}>아이</option></select></label><label>상세페이지 URL<input id="productUrlInput" value="${product.url}"><button class="inline-analyze" id="analyzeProduct" type="button">페이지 분석 · 자동 입력</button></label></div></div>`, actions:'<button class="ghost-modal" data-close>취소</button><button class="modal-primary" id="saveProductEdit">저장</button>' });
+  $('[data-close]').addEventListener('click', closeModal);
+  $('#analyzeProduct').addEventListener('click', event => {
+    event.currentTarget.disabled = true;
+    event.currentTarget.textContent = '분석 중...';
+    setTimeout(() => { $('#ingredientsInput').value = product.ingredients || '수분, 진정'; $('#ingredientStatus').textContent = '상세페이지 분석 완료'; $('#ingredientStatus').classList.remove('manual'); $('#ingredientSource').textContent = '상세페이지에서 자동 입력됨'; event.currentTarget.disabled=false; event.currentTarget.textContent='페이지 분석 · 자동 입력'; showToast('상세페이지 정보를 반영했어요'); }, 700);
+  });
+  $$('#ingredientTags button').forEach(button => button.addEventListener('click', () => { button.classList.toggle('active'); const values=$$('#ingredientTags button.active').map(item=>item.textContent); if(values.length) $('#ingredientsInput').value=values.join(', '); }));
+  $('#saveProductEdit').addEventListener('click', () => {
+    Object.assign(product, { name:$('#productNameInput').value, price:$('#productPriceInput').value, strength:$('#productStrengthInput').value, ingredients:$('#ingredientsInput').value, category:$('#productCategoryInput').value, url:$('#productUrlInput').value });
+    currentProduct = product;
+    closeModal();
+    renderProductSelections();
+    renderPromptSuggestions();
+    showToast('제품 정보를 저장했어요', product.name);
+  });
 }
 
 function productLibraryModal() {
-  const cards = productCatalog.map((product, index) => `<article class="catalog-card" data-brand="${product.brand}"><img src="assets/${product.image}" alt="${product.name}"><div><span>${product.brand}</span><b>${product.name}</b><small>${product.category} · ${product.price}</small><p>${product.strength}</p></div><button data-product="${index}">선택</button></article>`).join('');
-  openModal({ kicker:'PRODUCT LIBRARY', title:'클럽클리오 제품 선택', wide:true, content:`<div class="catalog-toolbar"><div class="modal-tabs" id="brandTabs"><button class="active" data-brand="all">전체</button><button data-brand="CLIO">CLIO</button><button data-brand="PERIPERA">PERIPERA</button><button data-brand="GOODAL">GOODAL</button></div><input id="catalogSearch" placeholder="제품명 검색"></div><div class="catalog-grid">${cards}</div>` });
+  const cards = productCatalog.map((product, index) => { const added=productListIndexes.includes(index); return `<article class="catalog-card" data-brand="${product.brand}"><img src="assets/${product.image}" alt="${product.name}"><div><span>${product.brand}</span><b>${product.name}</b><small>${product.category} · ${product.price}</small><p>${product.strength}</p></div><button data-product="${index}" ${added?'disabled':''}>${added?'추가됨':'추가'}</button></article>`; }).join('');
+  openModal({ kicker:'PRODUCT LIBRARY', title:'클럽클리오 제품 추가', wide:true, content:`<div class="catalog-toolbar"><div class="modal-tabs" id="brandTabs"><button class="active" data-brand="all">전체</button><button data-brand="CLIO">CLIO</button><button data-brand="PERIPERA">PERIPERA</button><button data-brand="GOODAL">GOODAL</button></div><input id="catalogSearch" placeholder="제품명 검색"></div><div class="catalog-grid">${cards}</div>` });
   $$('#brandTabs button').forEach(button => button.addEventListener('click', () => { $$('#brandTabs button').forEach(item => item.classList.remove('active')); button.classList.add('active'); $$('.catalog-card').forEach(card => card.hidden = button.dataset.brand !== 'all' && card.dataset.brand !== button.dataset.brand); }));
   $('#catalogSearch').addEventListener('input', event => { const q=event.target.value.toLowerCase(); $$('.catalog-card').forEach(card => card.hidden = !card.innerText.toLowerCase().includes(q)); });
-  $$('.catalog-card button').forEach(button => button.addEventListener('click', () => { applyProduct(productCatalog[Number(button.dataset.product)]); closeModal(); }));
+  $$('.catalog-card button:not(:disabled)').forEach(button => button.addEventListener('click', () => { const index=Number(button.dataset.product); if(!productListIndexes.includes(index)) productListIndexes.push(index); selectedProductIndexes.add(index); currentProduct=productCatalog[index]; closeModal(); renderProductSelections(); renderPromptSuggestions(); showToast('제품을 목록에 추가했어요',currentProduct.name); }));
 }
 
 $('.product-panel .text-button').addEventListener('click', productLibraryModal);
-$('#analyzeProduct').addEventListener('click', event => {
-  event.currentTarget.disabled = true;
-  event.currentTarget.textContent = '분석 중...';
-  setTimeout(() => { $('#ingredientsInput').value = currentProduct.ingredients || '카테고리 태그에서 효능을 선택해주세요'; $('#ingredientStatus').textContent = currentProduct.ingredients ? '상세페이지 분석 완료' : '정보 없음'; event.currentTarget.disabled=false; event.currentTarget.textContent='페이지 분석 · 자동 입력'; showToast(currentProduct.ingredients ? '상세페이지 정보를 반영했어요' : '성분 정보가 없어 직접 입력이 필요해요'); }, 900);
-});
-$$('#ingredientTags button').forEach(button => button.addEventListener('click', () => { button.classList.toggle('active'); const values=$$('#ingredientTags button.active').map(item=>item.textContent); if(values.length) $('#ingredientsInput').value=values.join(', '); }));
+renderProductSelections();
 
 $('#templateButton').addEventListener('click', () => {
   const cards = Object.entries(promptTemplates).map(([name, text]) => `<button class="template-card" data-template="${name}"><span>${name.includes('UGC') ? 'UGC' : name.includes('밈') ? 'FUN' : 'AD'}</span><b>${name}</b><small>${text}</small><i>템플릿 사용 →</i></button>`).join('');
@@ -201,14 +220,34 @@ function automationModal(view='create') {
 $('#automationButton').addEventListener('click', () => automationModal('create'));
 $('.topbar nav a[href="#automation"]').addEventListener('click', event => { event.preventDefault(); automationModal('jobs'); });
 
-function resultCard(id,title,status,image,meta,cost,local=false) {
-  return `<article class="result-card"><label class="result-check"><input type="checkbox" data-result="${id}"><span>✓</span></label><div class="video-preview" style="background-image:url('assets/${image}')"><button class="video-play" aria-label="영상 재생">▶</button><span class="video-status">${status}</span><div class="caption-preview">${local?'로컬 영상':'무너짐 없이, 광채만 남겼어 ✨'}</div><div class="video-progress"><i></i></div></div><div class="result-info"><div><h3>${title}</h3><p>${meta} <span>·</span> ${cost}</p></div><button class="more-button" aria-label="더보기">•••</button></div><div class="result-actions three"><button class="editVideo" data-title="${title}">편집</button><button class="feedbackVideo" data-title="${title}">AI 피드백</button><button class="quickUpload" data-title="${title}">업로드 ↗</button></div></article>`;
+$('#notificationButton').addEventListener('click', event => {
+  event.stopPropagation();
+  $('#notificationPanel').hidden = !$('#notificationPanel').hidden;
+});
+$('#notificationPanel').addEventListener('click', event => event.stopPropagation());
+document.addEventListener('click', () => { $('#notificationPanel').hidden = true; });
+$('#markAllRead').addEventListener('click', () => { $('#notificationButton b').hidden = true; $$('.notification-item').forEach(item => item.classList.remove('urgent')); showToast('알림을 모두 읽음 처리했어요'); });
+$('[data-open-automation]').addEventListener('click', () => { $('#notificationPanel').hidden = true; automationModal('jobs'); });
+$('#dismissAlert').addEventListener('click', () => { $('#uploadAlert').hidden = true; });
+
+function resultCard(item) {
+  const external = item.source !== 'studio';
+  const badge = item.source === 'studio' ? '✦ 스튜디오 생성' : item.source === 'beautyform' ? 'B 뷰티폼' : '⌁ 로컬 업로드';
+  return `<article class="result-card ${external ? 'external-result' : 'studio-result'}" data-size="${item.size}"><label class="result-check"><input type="checkbox" data-result="${item.id}"><span>✓</span></label><div class="video-preview" style="background-image:url('assets/${item.image}')"><button class="video-play" aria-label="영상 재생">▶</button><span class="video-status">${item.status}</span><span class="result-source-badge ${item.source}">${badge}</span><div class="caption-preview">${external ? '가져온 원본 영상' : '무너짐 없이, 광채만 남겼어 ✨'}</div><div class="video-progress"><i></i></div></div><div class="result-info"><div><h3>${item.title}</h3><p>${item.meta} <span>·</span> ${item.cost}</p><small class="file-size">${item.size} · ${item.resolution || '1080p'}</small></div><button class="more-button" aria-label="더보기">•••</button></div><div class="result-actions three"><button class="editVideo" data-title="${item.title}">편집</button><button class="feedbackVideo" data-title="${item.title}">AI 피드백</button><button class="quickUpload" data-title="${item.title}" data-size="${item.size}">업로드 ↗</button></div></article>`;
 }
 
-function renderResults(localFile='') {
-  $('#resultEmpty').hidden=true;
-  $('#resultContent').hidden=false;
-  $('#resultContent').innerHTML=`<div class="result-grid">${resultCard('v1','광채가 켜지는 15초','완성','clio-creator.png','Veo 3 Fast · 15초','₩3,200')}${resultCard('v2','가격 훅 베리에이션','완성','clio-product.png','Veo 3 Fast · 15초','₩3,200')}${localFile?resultCard('local',localFile,'업로드됨','clio-product.png','로컬 파일 · 분석 대기','—',true):''}</div><div class="bulk-bar"><span><b id="selectedCount">0</b>개 선택</span><div><button class="bulk-ghost" id="downloadButton">내려받기</button><button class="bulk-primary" id="openUpload" disabled>선택 영상 업로드</button></div></div>`;
+function renderResults() {
+  const studioItems = studioResultsReady ? [
+    {id:'v1',title:'광채가 켜지는 15초',status:'완성',image:'clio-creator.png',meta:`Veo 3 Fast · 15초 · ${$('#ratioSelect').value}`,cost:'₩3,200',size:'8.4 MB',resolution:$('#resolutionSelect').value,source:'studio'},
+    {id:'v2',title:'가격 훅 베리에이션',status:'완성',image:'clio-product.png',meta:`Veo 3 Fast · 15초 · ${$('#ratioSelect').value}`,cost:'₩3,200',size:'7.9 MB',resolution:$('#resolutionSelect').value,source:'studio'}
+  ] : [];
+  const hasResults = studioItems.length || externalResults.length;
+  $('#resultEmpty').hidden = hasResults;
+  $('#resultContent').hidden = !hasResults;
+  if (!hasResults) return;
+  const studioGroup = studioItems.length ? `<section class="output-group studio-output"><header class="output-group-head"><div><span>✦</span><p><b>숏폼 스튜디오 생성</b><small>제품과 레퍼런스로 AI가 만든 결과물</small></p></div><em>${studioItems.length}개</em></header><div class="result-grid">${studioItems.map(resultCard).join('')}</div></section>` : '';
+  const externalGroup = externalResults.length ? `<section class="output-group external-output"><header class="output-group-head"><div><span>⇧</span><p><b>기존 영상 가져오기</b><small>로컬 파일 및 뷰티폼에서 가져온 영상</small></p></div><em>${externalResults.length}개</em></header><div class="result-grid">${externalResults.map(resultCard).join('')}</div></section>` : '';
+  $('#resultContent').innerHTML=`${studioGroup}${externalGroup}<div class="bulk-bar"><span><b id="selectedCount">0</b>개 선택</span><div><button class="bulk-ghost" id="downloadButton">내려받기</button><button class="bulk-primary" id="openUpload" disabled>선택 영상 업로드</button></div></div>`;
   bindResultActions();
 }
 
@@ -216,9 +255,9 @@ function bindResultActions() {
   $$('.result-check input').forEach(input=>input.addEventListener('change',updateBulkBar));
   $$('.editVideo').forEach(button=>button.addEventListener('click',()=>editorModal(button.dataset.title)));
   $$('.feedbackVideo').forEach(button=>button.addEventListener('click',()=>feedbackModal(button.dataset.title)));
-  $$('.quickUpload').forEach(button=>button.addEventListener('click',()=>uploadModal([button.dataset.title])));
+  $$('.quickUpload').forEach(button=>button.addEventListener('click',()=>uploadModal([{title:button.dataset.title,size:button.dataset.size}])));
   $$('.video-play').forEach(button=>button.addEventListener('click',()=>{const preview=button.closest('.video-preview');preview.classList.toggle('playing');button.textContent=preview.classList.contains('playing')?'Ⅱ':'▶';}));
-  $('#openUpload').addEventListener('click',()=>uploadModal($$('.result-check input:checked').map(input=>input.closest('.result-card').querySelector('h3').textContent)));
+  $('#openUpload').addEventListener('click',()=>uploadModal($$('.result-check input:checked').map(input=>({title:input.closest('.result-card').querySelector('h3').textContent,size:input.closest('.result-card').dataset.size}))));
   $('#downloadButton').addEventListener('click',()=>showToast('샘플 영상을 준비했어요','프로토타입에서는 실제 파일 대신 동작만 표시합니다.'));
 }
 
@@ -232,26 +271,28 @@ function feedbackModal(title){
 
 function editorModal(title){
   const finalPrompt=`[0–2초] 피부 광채 클로즈업 훅. [3–8초] ${currentProduct.name} 제형과 얇은 밀착 표현. [9–13초] ${currentProduct.strength}. [14–15초] 제품 팩샷과 CTA.`;
-  openModal({kicker:'VIDEO EDITOR',title:`${title} 편집`,wide:true,content:`<div class="editor-layout"><div class="editor-preview"><div class="editor-phone"><img src="assets/clio-creator.png" alt="편집 중인 영상"><div class="editor-caption">24시간, 무너짐 없이.</div><button>▶</button></div></div><div class="editor-controls"><div class="editor-tabs"><button class="active" data-pane="prompt">생성 프롬프트</button><button data-pane="cut">컷 편집</button><button data-pane="voice">나레이션</button><button data-pane="caption">자막</button></div><div class="editor-pane active" data-editor-pane="prompt"><div class="edit-heading"><b>현재 결과물 생성 프롬프트</b><span class="pink-text">직접 수정 가능</span></div><textarea id="editPrompt" rows="10">${finalPrompt}\n\n${$('#directionPrompt').value}</textarea><button class="prompt-regenerate">수정 프롬프트로 다시 생성</button></div><div class="editor-pane" data-editor-pane="cut"><div class="edit-section"><div class="edit-heading"><b>타임라인</b><span>00:15</span></div><div class="timeline"><i style="width:18%"></i><i style="width:34%"></i><i style="width:28%"></i><i style="width:20%"></i><b style="left:47%"></b></div><div class="time-labels"><span>00:00</span><span>00:05</span><span>00:10</span><span>00:15</span></div></div></div><div class="editor-pane" data-editor-pane="voice"><div class="edit-section"><div class="edit-heading"><b>나레이션</b><label class="toggle"><input type="checkbox" checked><span></span></label></div><select><option>지수 · 밝고 또렷한 여성</option><option>민준 · 차분한 남성</option><option>Emma · Energetic</option></select><button class="voice-preview">▶ 목소리 미리듣기</button></div></div><div class="editor-pane" data-editor-pane="caption"><div class="edit-section"><div class="edit-heading"><b>자막</b><span class="pink-text">자동 맞춤</span></div><div class="caption-row"><span>00:00</span><input value="쿠션, 아직도 두껍게 발라?"></div><div class="caption-row"><span>00:04</span><input value="메쉬처럼 얇게, 광채는 오래"></div><div class="caption-row"><span>00:10</span><input value="24시간 무너짐 없이."></div></div></div></div></div>`,actions:'<button class="ghost-modal" data-close>변경 취소</button><button class="modal-primary" id="saveEdit">새 버전 저장</button>'});
+  openModal({kicker:'VIDEO EDITOR',title:`${title} 편집`,wide:true,content:`<div class="editor-layout"><div class="editor-preview"><div class="editor-phone"><img src="assets/clio-creator.png" alt="편집 중인 영상"><div class="editor-caption" id="liveEditorCaption">24시간, 무너짐 없이.</div><button>▶</button></div></div><div class="editor-controls"><div class="editor-tabs"><button class="active" data-pane="prompt">생성 프롬프트</button><button data-pane="sync">컷 · 자막 싱크</button><button data-pane="voice">나레이션</button></div><div class="editor-pane active" data-editor-pane="prompt"><div class="edit-heading"><b>현재 결과물 생성 프롬프트</b><span class="pink-text">직접 수정 가능</span></div><textarea id="editPrompt" rows="10">${finalPrompt}\n\n${$('#directionPrompt').value}</textarea><button class="prompt-regenerate">수정 프롬프트로 다시 생성</button></div><div class="editor-pane" data-editor-pane="sync"><div class="edit-section sync-editor"><div class="edit-heading"><b>컷과 자막을 한 타임라인에서 조정</b><span class="pink-text">00:15</span></div><div class="timeline sync-timeline"><i style="width:18%"><em>훅</em></i><i style="width:34%"><em>제형</em></i><i style="width:28%"><em>커버</em></i><i style="width:20%"><em>CTA</em></i><b style="left:47%"></b></div><div class="time-labels"><span>00:00</span><span>00:05</span><span>00:10</span><span>00:15</span></div><div class="caption-track-title"><b>자막 트랙</b><button id="autoSyncCaption">↻ 자동 싱크 맞춤</button></div><div class="sync-caption-row active"><span class="sync-color one"></span><label>시작<input value="00:00.0"></label><label>종료<input value="00:03.8"></label><input class="sync-caption-text" value="쿠션, 아직도 두껍게 발라?"></div><div class="sync-caption-row"><span class="sync-color two"></span><label>시작<input value="00:03.8"></label><label>종료<input value="00:09.5"></label><input class="sync-caption-text" value="메쉬처럼 얇게, 광채는 오래"></div><div class="sync-caption-row"><span class="sync-color three"></span><label>시작<input value="00:09.5"></label><label>종료<input value="00:15.0"></label><input class="sync-caption-text" value="24시간 무너짐 없이."></div><p class="sync-help">자막 구간을 선택하면 미리보기 자막과 컷 위치가 함께 표시됩니다.</p></div></div><div class="editor-pane" data-editor-pane="voice"><div class="edit-section"><div class="edit-heading"><b>나레이션</b><label class="toggle"><input type="checkbox" checked><span></span></label></div><select><option>지수 · 밝고 또렷한 여성</option><option>민준 · 차분한 남성</option><option>Emma · Energetic</option></select><button class="voice-preview">▶ 목소리 미리듣기</button></div></div></div></div>`,actions:'<button class="ghost-modal" data-close>변경 취소</button><button class="modal-primary" id="saveEdit">새 버전 저장</button>'});
   $('[data-close]').addEventListener('click',closeModal);
   $$('.editor-tabs button').forEach(button=>button.addEventListener('click',()=>{$$('.editor-tabs button').forEach(item=>item.classList.remove('active'));button.classList.add('active');$$('.editor-pane').forEach(pane=>pane.classList.toggle('active',pane.dataset.editorPane===button.dataset.pane));}));
   if($('.voice-preview')) $('.voice-preview').addEventListener('click',event=>{event.currentTarget.textContent='Ⅱ 재생 중...';setTimeout(()=>event.currentTarget.textContent='▶ 목소리 미리듣기',1300);});
+  $$('.sync-caption-row').forEach(row=>row.addEventListener('click',()=>{$$('.sync-caption-row').forEach(item=>item.classList.remove('active'));row.classList.add('active');$('#liveEditorCaption').textContent=row.querySelector('.sync-caption-text').value;}));
+  if($('#autoSyncCaption')) $('#autoSyncCaption').addEventListener('click',event=>{event.currentTarget.textContent='✓ 싱크 정렬 완료';showToast('컷 전환점에 맞춰 자막 싱크를 정렬했어요');});
   $('.prompt-regenerate').addEventListener('click',()=>{closeModal();showToast('수정 프롬프트로 새 버전을 생성해요');});
   $('#saveEdit').addEventListener('click',()=>{closeModal();showToast('편집 버전을 저장했어요','원본 영상은 그대로 유지됩니다.');});
 }
 
-function uploadModal(titles){openModal({kicker:'PUBLISH',title:`${titles.length}개 영상 업로드`,content:`<div class="upload-summary"><img src="assets/clio-creator.png" alt="업로드 영상 썸네일"><div><b>${titles[0]}</b><small>${titles.length>1?`외 ${titles.length-1}개`:'15초 · 9:16'}</small></div></div><div class="platform-list"><label><input type="checkbox" checked><span class="platform-icon insta">◎</span><b>Instagram Reels</b><small>@clio_official</small></label><label><input type="checkbox" checked><span class="platform-icon tiktok">♪</span><b>TikTok</b><small>@clio_official</small></label><label><input type="checkbox"><span class="platform-icon youtube">▶</span><b>YouTube Shorts</b><small>CLIO Official</small></label></div><div class="modal-form"><label>게시 시점<select><option>지금 바로 게시</option><option>오늘 오후 6:00 예약</option><option>직접 선택</option></select></label><label>캡션<textarea rows="3">광채는 얇게, 자신감은 선명하게 ✨ #클리오 #킬커버 #쿠션추천</textarea></label></div>`,actions:'<button class="ghost-modal" data-close>취소</button><button class="modal-primary" id="publishConfirm">업로드 실행</button>'});$('[data-close]').addEventListener('click',closeModal);$('#publishConfirm').addEventListener('click',()=>{const count=$$('.platform-list input:checked').length;closeModal();showToast(`${count}개 플랫폼에 업로드를 시작했어요`,'게시 상태는 관리자 리포트에서 확인할 수 있습니다.');});}
+function uploadModal(items){const videos=items.map(item=>typeof item==='string'?{title:item,size:'8.4 MB'}:item);const total=videos.reduce((sum,item)=>sum+Number.parseFloat(item.size||'0'),0).toFixed(1);openModal({kicker:'PUBLISH',title:`${videos.length}개 영상 업로드`,content:`<div class="upload-summary"><img src="assets/clio-creator.png" alt="업로드 영상 썸네일"><div><b>${videos[0].title}</b><small>${videos.length>1?`외 ${videos.length-1}개 · 총 ${total} MB`:`15초 · 9:16 · ${videos[0].size}`}</small></div><span class="upload-size-check">업로드 용량 <b>${total} MB</b></span></div><div class="platform-list"><label><input type="checkbox" checked><span class="platform-icon insta">◎</span><b>Instagram Reels</b><small>@clio_official</small></label><label><input type="checkbox" checked><span class="platform-icon tiktok">♪</span><b>TikTok</b><small>@clio_official</small></label><label><input type="checkbox"><span class="platform-icon youtube">▶</span><b>YouTube Shorts</b><small>CLIO Official</small></label></div><div class="modal-form"><label>게시 시점<select><option>지금 바로 게시</option><option>오늘 오후 6:00 예약</option><option>직접 선택</option></select></label><label>캡션<textarea rows="3">광채는 얇게, 자신감은 선명하게 ✨ #클리오 #킬커버 #쿠션추천</textarea></label></div>`,actions:'<button class="ghost-modal" data-close>취소</button><button class="modal-primary" id="publishConfirm">업로드 실행</button>'});$('[data-close]').addEventListener('click',closeModal);$('#publishConfirm').addEventListener('click',()=>{const count=$$('.platform-list input:checked').length;closeModal();showToast(`${count}개 플랫폼에 업로드를 시작했어요`,`${total} MB · 게시 상태는 영상 목록에서 확인할 수 있습니다.`);});}
 
-function startGeneration(){const button=$('#createButton');let progress=0;button.disabled=true;$('#resultsSection').scrollIntoView({behavior:'smooth',block:'start'});$('#localDropzone').hidden=true;$('#resultEmpty').innerHTML='<div class="generation-loader"><i></i><span>장면 구성 중</span><b id="progressText">0%</b></div><p>제품 특징과 레퍼런스의 호흡을 분석하고 있어요.</p>';generationTimer=setInterval(()=>{progress+=progress<60?13:8;if(progress>100)progress=100;$('#progressText').textContent=`${progress}%`;$('.generation-loader i').style.setProperty('--progress',`${progress*3.6}deg`);button.innerHTML=`<span>✦</span> 영상 생성 중 ${progress}%`;if(progress>=100){clearInterval(generationTimer);renderResults();button.innerHTML='<span>✦</span> 새 영상 만들기';button.disabled=false;showToast('영상 2개를 만들었어요',`${selectedReference} 스타일 · ${selectedLanguage}`);if(pendingAutoPublish){pendingAutoPublish=false;setTimeout(()=>uploadModal(['추천 인사이트 적용 영상']),500);}}},210);}
+function startGeneration(){const button=$('#createButton');let progress=0;button.disabled=true;$('#resultsSection').scrollIntoView({behavior:'smooth',block:'start'});$('#localDropzone').hidden=true;$('#resultEmpty').innerHTML='<div class="generation-loader"><i></i><span>장면 구성 중</span><b id="progressText">0%</b></div><p>제품 특징과 레퍼런스의 호흡을 분석하고 있어요.</p>';generationTimer=setInterval(()=>{progress+=progress<60?13:8;if(progress>100)progress=100;$('#progressText').textContent=`${progress}%`;$('.generation-loader i').style.setProperty('--progress',`${progress*3.6}deg`);button.innerHTML=`<span>✦</span> 영상 생성 중 ${progress}%`;if(progress>=100){clearInterval(generationTimer);studioResultsReady=true;renderResults();button.innerHTML='<span>✦</span> 새 영상 만들기';button.disabled=false;showToast('영상 2개를 만들었어요',`${selectedReference} 스타일 · ${selectedLanguage}`);if(pendingAutoPublish){pendingAutoPublish=false;setTimeout(()=>uploadModal([{title:'추천 인사이트 적용 영상',size:'8.4 MB'}]),500);}}},210);}
 $('#createButton').addEventListener('click',startGeneration);
 
-function addLocalVideo(file){$('#localDropzone').hidden=true;renderResults(file.name);showToast('로컬 영상을 결과물에 추가했어요',file.name);}
+function addLocalVideo(file){$('#localDropzone').hidden=true;const size=file.size?`${(file.size/1024/1024).toFixed(1)} MB`:'18.6 MB';externalResults.push({id:`local-${Date.now()}`,title:file.name,status:'가져옴',image:'clio-product.png',meta:'로컬 파일 · 분석 완료',cost:'—',size,resolution:'원본',source:'local'});renderResults();showToast('로컬 영상을 결과물에 추가했어요',`${file.name} · ${size}`);}
 $('#localVideoInput').addEventListener('change',event=>{if(event.target.files[0])addLocalVideo(event.target.files[0]);});
 $('#localDropzone').addEventListener('click',()=>$('#localVideoInput').click());
 ['dragenter','dragover'].forEach(type=>$('#localDropzone').addEventListener(type,event=>{event.preventDefault();$('#localDropzone').classList.add('dragging');}));
 ['dragleave','drop'].forEach(type=>$('#localDropzone').addEventListener(type,event=>{event.preventDefault();$('#localDropzone').classList.remove('dragging');if(type==='drop'&&event.dataTransfer.files[0])addLocalVideo(event.dataTransfer.files[0]);}));
 
-$('#beautyFormButton').addEventListener('click',()=>{openModal({kicker:'BEAUTYFORM SYNC',title:'뷰티폼 영상 가져오기',wide:true,content:`<div class="sync-head"><span class="sync-logo">B</span><div><b>BeautyForm 연결됨</b><small>마지막 동기화: 방금 전</small></div><button>새로고침</button></div><div class="import-grid">${['신상 쿠션 3초 훅','메쉬 제형 클로즈업','여름 지속력 테스트'].map((name,index)=>`<label class="import-card"><input type="checkbox" ${index<2?'checked':''}><span><img src="assets/${index===1?'clio-product.png':'clio-creator.png'}" alt="${name}"><i>0:${15+index*3}</i></span><b>${name}</b><small>2026.09.${18-index}</small></label>`).join('')}</div>`,actions:'<button class="ghost-modal" data-close>취소</button><button class="modal-primary" id="importConfirm">선택 영상 가져오기</button>'});$('[data-close]').addEventListener('click',closeModal);$('#importConfirm').addEventListener('click',()=>{const count=$$('.import-card input:checked').length;closeModal();if(count){$('#localDropzone').hidden=true;renderResults();showToast(`뷰티폼 영상 ${count}개를 가져왔어요`);}});});
+$('#beautyFormButton').addEventListener('click',()=>{const names=['신상 쿠션 3초 훅','메쉬 제형 클로즈업','여름 지속력 테스트'];openModal({kicker:'BEAUTYFORM SYNC',title:'뷰티폼 영상 가져오기',wide:true,content:`<div class="sync-head"><span class="sync-logo">B</span><div><b>BeautyForm 연결됨</b><small>마지막 동기화: 방금 전</small></div><button>새로고침</button></div><div class="import-grid">${names.map((name,index)=>`<label class="import-card"><input type="checkbox" data-import-index="${index}" ${index<2?'checked':''}><span><img src="assets/${index===1?'clio-product.png':'clio-creator.png'}" alt="${name}"><i>0:${15+index*3}</i></span><b>${name}</b><small>2026.09.${18-index}</small></label>`).join('')}</div>`,actions:'<button class="ghost-modal" data-close>취소</button><button class="modal-primary" id="importConfirm">선택 영상 가져오기</button>'});$('[data-close]').addEventListener('click',closeModal);$('#importConfirm').addEventListener('click',()=>{const selected=$$('.import-card input:checked').map(input=>Number(input.dataset.importIndex));closeModal();if(selected.length){$('#localDropzone').hidden=true;selected.forEach(index=>externalResults.push({id:`beauty-${index}-${Date.now()}`,title:names[index],status:'가져옴',image:index===1?'clio-product.png':'clio-creator.png',meta:'BeautyForm 원본 · 편집 가능',cost:'—',size:`${(12.8+index*2.3).toFixed(1)} MB`,resolution:'1080p',source:'beautyform'}));renderResults();showToast(`뷰티폼 영상 ${selected.length}개를 가져왔어요`);}});});
 
 function applyReportRecommendation(){const params=new URLSearchParams(location.search);const recommendation=params.get('recommend');if(!recommendation)return;const map={short:{category:'ugc',duration:'15초',prompt:'15초 이하로 핵심 장면만 남겨 완주율을 높여주세요. 첫 1초에 제품과 피부 결과를 동시에 보여주세요.'},keyword:{category:'makeup',duration:'15초',prompt:'요즘 반응이 높은 메쉬 쿠션, 물광, 얇은 밀착 키워드를 첫 3초 자막과 내레이션에 자연스럽게 포함해주세요.'},ugc:{category:'ugc',duration:'15초',prompt:'셀프캠 사용 전·후 비교 구조로 제작해주세요. 한쪽 얼굴에만 적용한 차이를 첫 2초에 보여주고 솔직한 UGC 말투를 사용해주세요.'},official:{category:'instagram',duration:'30초',prompt:'클리오 공식 Instagram의 24시간 지속력 테스트 구조를 활용해 시간대별 피부 상태를 신뢰감 있게 보여주세요.'}};const data=map[recommendation]||map.short;activeSource=recommendation==='official'?'official':'trend';activeCategory=data.category;$$('.source-tabs button').forEach(button=>button.classList.toggle('active',button.dataset.source===activeSource));renderCategoryChips();filterReferences();const card=$$('.reference-card').find(item=>!item.hidden&&item.dataset.category.includes(data.category))||$('.reference-card:not([hidden])');if(card)selectReference(card);$('#durationSelect').value=data.duration;$('#directionPrompt').value=data.prompt;pendingAutoPublish=params.get('publish')==='1';showToast('리포트 제안을 적용했어요','추천 설정으로 자동 생성을 시작합니다.');setTimeout(()=>{if(!$('#createButton').disabled)startGeneration();},500);}
 

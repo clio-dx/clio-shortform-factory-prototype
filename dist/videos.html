@@ -41,69 +41,76 @@
       </header>
 
       <div class="list-meta"><p><b id="visibleCount">6</b>개 영상</p><button id="sortButton">최신순 ↓</button></div>
+      <div class="video-selection-bar" id="videoSelectionBar"><span><b id="videoSelectedCount">0</b>개 선택</span><p>자동 생성 영상을 선택해 다른 플랫폼에 다시 게시할 수 있어요.</p><button id="reuploadButton" disabled>선택 영상 재업로드 ↗</button></div>
 
       <div class="video-table-wrap">
         <table class="video-table">
-          <thead><tr><th>영상</th><th>제작 방식</th><th>제작 정보</th><th>업로드 방식</th><th>게시 플랫폼</th><th>상태 · 게시일</th><th></th></tr></thead>
+          <thead><tr><th class="check-col"><input id="selectAllVideos" type="checkbox" aria-label="전체 영상 선택"></th><th>영상</th><th>제작 방식</th><th>제작 정보</th><th>업로드 방식</th><th>게시 플랫폼</th><th>상태 · 게시일</th><th></th></tr></thead>
           <tbody id="videoRows">
             <tr data-id="glow15" data-method="ai" data-platform="instagram youtube" data-status="published" data-search="광채가 켜지는 15초 킬커버 메쉬 글로우 쿠션 ugc">
+              <td class="row-check"><input class="video-select" type="checkbox" value="glow15" aria-label="광채가 켜지는 15초 선택"></td>
               <td><div class="video-identity"><div class="video-thumb"><img src="assets/clio-creator.png" alt="광채가 켜지는 15초 썸네일"><i>0:15</i><button aria-label="영상 재생">▶</button></div><div><b>광채가 켜지는 15초</b><span>킬커버 메쉬 글로우 쿠션</span><small>VID-0921-018</small></div></div></td>
               <td><span class="method ai">✦ AI 생성</span><small>자동화 작업</small></td>
               <td><b>Veo 3 Fast</b><span>1초 광채 전환 UGC</span><small>한국어 · 9:16</small></td>
               <td><span class="upload-type auto">↻ 자동 업로드</span><small>킬커버 데일리 UGC</small></td>
               <td><div class="platform-stack"><span class="platform instagram">◎ Instagram <i>게시</i></span><span class="platform youtube">▶ YouTube <i>게시</i></span></div></td>
               <td><span class="state published">게시 완료</span><small>2026. 09. 21 · 09:02</small></td>
-              <td><button class="detail-button" data-detail="glow15">상세 보기</button></td>
+              <td><div class="row-actions"><button class="metrics-button" data-metrics="glow15">지표 분석</button><button class="detail-button" data-detail="glow15">상세 보기</button></div></td>
             </tr>
 
             <tr data-id="lasting24" data-method="ai" data-platform="instagram" data-status="published" data-search="24시간 무너짐 없이 킬커버 메쉬 글로우 쿠션 지속력 공식 인스타그램">
+              <td class="row-check"><input class="video-select" type="checkbox" value="lasting24" aria-label="24시간 무너짐 없이 선택"></td>
               <td><div class="video-identity"><div class="video-thumb product"><img src="assets/clio-product.png" alt="24시간 지속력 영상 썸네일"><i>0:20</i><button aria-label="영상 재생">▶</button></div><div><b>24시간, 무너짐 없이</b><span>킬커버 메쉬 글로우 쿠션</span><small>VID-0920-042</small></div></div></td>
               <td><span class="method ai">✦ AI 생성</span><small>수동 생성</small></td>
               <td><b>Veo 3 Fast</b><span>CLIO Instagram 24H 테스트</span><small>한국어 · 9:16</small></td>
               <td><span class="upload-type manual">↑ 직접 업로드</span><small>담당자 MK</small></td>
               <td><div class="platform-stack"><span class="platform instagram">◎ Instagram <i>게시</i></span></div></td>
               <td><span class="state published">게시 완료</span><small>2026. 09. 20 · 18:00</small></td>
-              <td><button class="detail-button" data-detail="lasting24">상세 보기</button></td>
+              <td><div class="row-actions"><button class="metrics-button" data-metrics="lasting24">지표 분석</button><button class="detail-button" data-detail="lasting24">상세 보기</button></div></td>
             </tr>
 
             <tr data-id="review28" data-method="beautyform" data-platform="youtube" data-status="scheduled" data-search="킬커버 핵심 리뷰 뷰티폼 유튜브 쇼츠">
+              <td class="row-check"><input class="video-select" type="checkbox" value="review28" aria-label="킬커버 핵심 리뷰 선택"></td>
               <td><div class="video-identity"><div class="video-thumb"><img src="assets/clio-creator.png" alt="킬커버 핵심 리뷰 영상 썸네일"><i>0:28</i><button aria-label="영상 재생">▶</button></div><div><b>킬커버 핵심 리뷰</b><span>킬커버 메쉬 글로우 쿠션</span><small>VID-0920-031</small></div></div></td>
               <td><span class="method beautyform">B 뷰티폼</span><small>가져오기</small></td>
               <td><b>BeautyForm 원본</b><span>자막 · 마지막 CTA 편집</span><small>한국어 · 9:16</small></td>
               <td><span class="upload-type schedule">◷ 예약 업로드</span><small>콘텐츠 캘린더</small></td>
               <td><div class="platform-stack"><span class="platform youtube">▶ YouTube <i>예약</i></span></div></td>
               <td><span class="state scheduled">게시 예약</span><small>2026. 09. 22 · 12:00</small></td>
-              <td><button class="detail-button" data-detail="review28">상세 보기</button></td>
+              <td><div class="row-actions"><button class="metrics-button" data-metrics="review28">지표 분석</button><button class="detail-button" data-detail="review28">상세 보기</button></div></td>
             </tr>
 
             <tr data-id="palette" data-method="local" data-platform="instagram" data-status="scheduled" data-search="올테이크 신색상 발색 릴레이 로컬 업로드 인스타그램 검수">
+              <td class="row-check"><input class="video-select" type="checkbox" value="palette" aria-label="올테이크 신색상 발색 릴레이 선택"></td>
               <td><div class="video-identity"><div class="video-thumb abstract"><span>NEW<br>MOOD</span><i>0:17</i><button aria-label="영상 재생">▶</button></div><div><b>올테이크 신색상 발색 릴레이</b><span>페리페라 올테이크 무드 팔레트</span><small>VID-0919-027</small></div></div></td>
               <td><span class="method local">⌁ 로컬 영상</span><small>드래그 · 드롭</small></td>
               <td><b>palette_launch_v3.mp4</b><span>자막만 스튜디오 편집</span><small>한국어 · 9:16</small></td>
               <td><span class="upload-type manual">↑ 직접 업로드</span><small>담당자 JY</small></td>
               <td><div class="platform-stack"><span class="platform instagram pending">◎ Instagram <i>검수</i></span></div></td>
               <td><span class="state review">검수 대기</span><small>등록 2026. 09. 19</small></td>
-              <td><button class="detail-button" data-detail="palette">상세 보기</button></td>
+              <td><div class="row-actions"><button class="metrics-button" data-metrics="palette">지표 분석</button><button class="detail-button" data-detail="palette">상세 보기</button></div></td>
             </tr>
 
             <tr data-id="fairy" data-method="ai" data-platform="none" data-status="draft" data-search="쿠션 요정 ai 애니 미게시 구달 진정 선크림">
+              <td class="row-check"><input class="video-select" type="checkbox" value="fairy" aria-label="쿠션 요정 AI 애니 선택"></td>
               <td><div class="video-identity"><div class="video-thumb abstract pink"><span>✦</span><i>0:12</i><button aria-label="영상 재생">▶</button></div><div><b>쿠션 요정 AI 애니</b><span>구달 어성초 진정 수분 선크림</span><small>VID-0919-011</small></div></div></td>
               <td><span class="method ai">✦ AI 생성</span><small>수동 생성</small></td>
               <td><b>Runway Gen-4</b><span>쿠션 요정 AI 애니</span><small>日本語 · 1:1</small></td>
               <td><span class="upload-type none">— 미설정</span><small>업로드 이력 없음</small></td>
               <td><div class="platform-stack"><span class="platform empty">플랫폼 미선택</span></div></td>
               <td><span class="state draft">미게시</span><small>생성 2026. 09. 19</small></td>
-              <td><button class="detail-button" data-detail="fairy">상세 보기</button></td>
+              <td><div class="row-actions"><button class="metrics-button" data-metrics="fairy">지표 분석</button><button class="detail-button" data-detail="fairy">상세 보기</button></div></td>
             </tr>
 
             <tr data-id="tint" data-method="ai" data-platform="instagram youtube" data-status="published" data-search="잉크 무드 글로이 컬러 비교 페리페라 인스타그램 유튜브 자동화">
+              <td class="row-check"><input class="video-select" type="checkbox" value="tint" aria-label="잉크 무드 글로이 컬러 비교 선택"></td>
               <td><div class="video-identity"><div class="video-thumb product"><img src="assets/clio-product.png" alt="잉크 무드 글로이 컬러 비교 영상 썸네일"><i>0:16</i><button aria-label="영상 재생">▶</button></div><div><b>잉크 무드 글로이 컬러 비교</b><span>페리페라 잉크 무드 글로이 틴트</span><small>VID-0918-054</small></div></div></td>
               <td><span class="method ai">✦ AI 생성</span><small>자동화 작업</small></td>
               <td><b>Kling 2.1</b><span>비트컷 발색 릴레이</span><small>English · 9:16</small></td>
               <td><span class="upload-type auto">↻ 자동 업로드</span><small>페리페라 신색상 런칭</small></td>
               <td><div class="platform-stack"><span class="platform instagram">◎ Instagram <i>게시</i></span><span class="platform youtube">▶ YouTube <i>게시</i></span></div></td>
               <td><span class="state published">게시 완료</span><small>2026. 09. 18 · 18:00</small></td>
-              <td><button class="detail-button" data-detail="tint">상세 보기</button></td>
+              <td><div class="row-actions"><button class="metrics-button" data-metrics="tint">지표 분석</button><button class="detail-button" data-detail="tint">상세 보기</button></div></td>
             </tr>
           </tbody>
         </table>

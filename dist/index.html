@@ -13,10 +13,11 @@
   <header class="topbar">
     <a class="brand" href="index.html" aria-label="클리오 숏폼 스튜디오 홈"><span class="brand-mark">C</span><span>CLIO <b>SHORTS</b></span></a>
     <nav aria-label="주요 메뉴"><a class="active" href="index.html">스튜디오</a><a href="#automation">자동화</a><a href="videos.html">영상 목록</a><a href="admin.html">리포트</a></nav>
-    <div class="top-actions"><span class="credit usage"><i></i><span>9월 사용량</span><b>₩482,600 / ₩1,000,000</b></span><button class="avatar" aria-label="사용자 메뉴">MK</button></div>
+    <div class="top-actions"><span class="credit usage"><i></i><span>9월 사용량</span><b>₩482,600 / ₩1,000,000</b></span><div class="notification-wrap"><button class="notification-button" id="notificationButton" aria-label="알림 열기">🔔<b>3</b></button><div class="notification-panel" id="notificationPanel" hidden><header><b>알림</b><button id="markAllRead">모두 읽음</button></header><a class="notification-item urgent" href="videos.html?status=draft"><i>50</i><span><b>업로드 대기 영상이 있어요</b><small>어제 자동 생성된 영상 50개를 검수하고 게시해주세요.</small><em>방금 전</em></span></a><a class="notification-item" href="admin.html"><i>↗</i><span><b>주간 효율 리포트가 도착했어요</b><small>15초 이하 영상의 완주율이 1.7배 높았습니다.</small><em>오늘 08:30</em></span></a><button class="notification-item notice-action" data-open-automation><i>⚙</i><span><b>자동화 작업 2개가 실행 중이에요</b><small>오늘 18시에 영상 10개가 추가 생성됩니다.</small><em>어제</em></span></button></div></div><button class="avatar" aria-label="사용자 메뉴">MK</button></div>
   </header>
 
   <main>
+    <aside class="studio-alert" id="uploadAlert"><span class="alert-count">50</span><div><b>어제 만든 영상 50개가 업로드를 기다리고 있어요</b><p>자동 생성 결과를 검수하고 게시 플랫폼을 선택해주세요.</p></div><a href="videos.html?status=draft">영상 목록에서 확인 →</a><button id="dismissAlert" aria-label="알림 닫기">×</button></aside>
     <section class="page-head">
       <div><p class="eyebrow">AI CONTENT WORKSPACE</p><h1>숏폼 스튜디오</h1><p>제품과 레퍼런스를 조합해 첫 시안을 바로 만들어보세요.</p></div>
       <ol class="steps" aria-label="제작 단계"><li class="on"><b>1</b>제품</li><li><b>2</b>레퍼런스</li><li><b>3</b>생성</li></ol>
@@ -25,20 +26,8 @@
     <section class="workspace">
       <aside class="panel product-panel">
         <div class="panel-title"><div><span class="step-no">01</span><h2>제품 선택</h2></div><button class="text-button">+ 제품 추가</button></div>
-        <label class="product-card selected">
-          <input id="productCheck" type="checkbox" checked />
-          <img src="assets/clio-product.png" alt="핑크 쿠션과 립 제품 샘플" />
-          <span class="check-dot"></span>
-          <span class="product-copy"><b id="productCardName">킬커버 메쉬 글로우 쿠션</b><small id="productCardMeta">CLIO · 쿠션 · 32,000원</small></span>
-        </label>
-        <div class="field-grid">
-          <label>품명<input id="productNameInput" value="킬커버 메쉬 글로우 쿠션" /></label>
-          <label>가격<input id="productPriceInput" value="32,000원" /></label>
-          <label class="full">강점<input id="productStrengthInput" value="얇게 밀착되는 24시간 물광 커버" /></label>
-          <label class="full ingredient-field"><span>주요 성분 <em id="ingredientStatus">상세페이지 분석 완료</em></span><input id="ingredientsInput" value="히알루론산, 판테놀, 세라마이드" /><small id="ingredientSource">상세페이지에서 자동 입력됨</small><div class="ingredient-tags" id="ingredientTags"><button type="button">수분</button><button type="button">진정</button><button type="button">장벽</button><button type="button">광채</button></div></label>
-          <label>카테고리<select><option>쿠션</option><option>선</option><option>기초</option><option>베이스</option></select></label>
-          <label class="full">상세페이지 URL<input id="productUrlInput" value="https://clubclio.co.kr/product/kill-cover" /><button class="inline-analyze" id="analyzeProduct" type="button">페이지 분석 · 자동 입력</button></label>
-        </div>
+        <div class="multi-product-list" id="selectedProducts" aria-label="선택 가능한 제품 목록"></div>
+        <div class="product-selection-note"><span><b id="productSelectedCount">2</b>개 제품 선택됨</span><small>여러 제품을 조합해 베리에이션을 만들 수 있어요.</small></div>
         <label class="upload-box"><span>＋</span><b>제품 컷 또는 영상 추가</b><small>PNG, JPG, MP4 · 최대 50MB</small><input type="file" accept="image/*,video/*" /></label>
       </aside>
 
@@ -63,7 +52,7 @@
         <fieldset><legend>영상 언어</legend><div class="segmented" id="languageTabs"><button class="active" type="button">한국어</button><button type="button">English</button><button type="button">日本語</button></div></fieldset>
         <div class="prompt-label-row"><label for="directionPrompt">영상 방향성</label><button class="text-button" id="templateButton">프롬프트 템플릿 ↗</button></div><textarea id="directionPrompt" rows="5">크림처럼 얇게 밀착되는 제형과 24시간 광채 지속력을 강조해주세요. 첫 2초에 피부 클로즈업 훅을 넣어주세요.</textarea>
         <div class="prompt-recommend"><span>제품 설명 기반 추천</span><div id="promptSuggestions"><button type="button">제형 클로즈업</button><button type="button">24시간 지속력</button><button type="button">가격 대비 성능</button><button type="button">출근 10초 UGC</button></div></div>
-        <div class="format-row"><label>길이<select id="durationSelect"><option>15초</option><option>30초</option><option>60초</option></select></label><label>비율<select><option>9:16</option><option>3:4</option><option>1:1</option></select></label></div>
+        <div class="format-row three"><label>길이<select id="durationSelect"><option>15초</option><option>30초</option><option>60초</option></select></label><label>비율<select id="ratioSelect"><option>9:16</option><option>3:4</option><option>1:1</option></select></label><label>해상도<select id="resolutionSelect"><option>1080p</option><option>4K</option><option>720p</option></select></label></div>
         <div class="estimate"><span>예상 비용</span><b>₩3,200 <small>· 약 3분</small></b></div>
         <button class="primary-button" id="createButton" disabled><span>✦</span> 영상 만들기</button>
         <button class="secondary-button" id="automationButton">자동 생성 · 업로드 설정</button>

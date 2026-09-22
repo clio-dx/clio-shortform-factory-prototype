@@ -43,6 +43,12 @@ const videoData = {
   }
 };
 
+const metricData = {
+  glow15:{views:'628K',eng:'8.9%',ctr:'3.8%',completion:'72%',clicks:'23.8K',trend:[42,58,51,76,69,88,100],best:'Instagram Reels',insight:'첫 2초 광채 전환 구간에서 이탈률이 가장 낮습니다.'},
+  lasting24:{views:'492K',eng:'7.8%',ctr:'4.2%',completion:'68%',clicks:'20.6K',trend:[34,47,62,57,71,86,93],best:'Instagram Reels',insight:'제품 가격이 등장하는 6초 구간의 클릭률이 평균보다 31% 높습니다.'},
+  tint:{views:'318K',eng:'5.9%',ctr:'2.9%',completion:'64%',clicks:'9.2K',trend:[25,39,46,62,59,74,82],best:'YouTube Shorts',insight:'컬러 전환 속도를 0.4초 줄이면 완주율 개선이 예상됩니다.'}
+};
+
 const rows = [...document.querySelectorAll('#videoRows tr')];
 const search = document.querySelector('#videoSearch');
 const filters = ['#methodFilter','#platformFilter','#statusFilter'].map(selector => document.querySelector(selector));
@@ -62,10 +68,26 @@ function applyFilters() {
   document.querySelector('#visibleCount').textContent = visible;
   document.querySelector('#noVideos').hidden = visible !== 0;
   document.querySelector('.video-table-wrap').hidden = visible === 0;
+  updateVideoSelection();
 }
 
 search.addEventListener('input', applyFilters);
 filters.forEach(filter => filter.addEventListener('change', applyFilters));
+
+const videoChecks = [...document.querySelectorAll('.video-select')];
+const selectAllVideos = document.querySelector('#selectAllVideos');
+function selectedVideoIds(){ return videoChecks.filter(input => input.checked).map(input => input.value); }
+function updateVideoSelection(){
+  const selected = selectedVideoIds();
+  const visibleChecks = videoChecks.filter(input => !input.closest('tr').hidden);
+  document.querySelector('#videoSelectedCount').textContent = selected.length;
+  document.querySelector('#reuploadButton').disabled = selected.length === 0;
+  document.querySelector('#videoSelectionBar').classList.toggle('active', selected.length > 0);
+  selectAllVideos.checked = visibleChecks.length > 0 && visibleChecks.every(input => input.checked);
+  selectAllVideos.indeterminate = visibleChecks.some(input => input.checked) && !selectAllVideos.checked;
+}
+videoChecks.forEach(input => input.addEventListener('change', updateVideoSelection));
+selectAllVideos.addEventListener('change', () => { videoChecks.filter(input => !input.closest('tr').hidden).forEach(input => input.checked = selectAllVideos.checked); updateVideoSelection(); });
 
 function timelineHtml(items) {
   return items.map(item => `<div class="timeline-item"><i class="timeline-dot"></i><div class="timeline-copy"><b>${item[0]}</b><span>${item[1]}</span></div></div>`).join('');
@@ -88,7 +110,33 @@ function openDetail(id) {
   modal.querySelectorAll('[data-channel-link]').forEach(link => link.addEventListener('click', event => { event.preventDefault(); showToast('게시물 링크를 열었어요', '프로토타입 샘플 동작입니다.'); }));
 }
 
+function openMetrics(id) {
+  const data = videoData[id];
+  const metrics = metricData[id];
+  const modal = document.querySelector('#videoModal');
+  const content = metrics ? `<div class="metrics-summary"><article><span>조회수</span><b>${metrics.views}</b><small>↑ 24.1%</small></article><article><span>ENG</span><b>${metrics.eng}</b><small>목표 5.0%</small></article><article><span>클릭률</span><b>${metrics.ctr}</b><small>링크 CTR</small></article><article><span>완주율</span><b>${metrics.completion}</b><small>15초 기준</small></article><article><span>링크 클릭</span><b>${metrics.clicks}</b><small>누적</small></article></div><div class="metric-detail-grid"><section class="metric-chart"><div class="metric-section-title"><div><b>게시 후 7일 조회 추이</b><small>시간이 지날수록 누적된 조회수</small></div><span>최고 성과 · ${metrics.best}</span></div><div class="metric-bars">${metrics.trend.map((value,index)=>`<i style="height:${value}%"><em>${index+1}일</em></i>`).join('')}</div></section><aside class="metric-insight"><span>AI 성과 인사이트</span><b>${metrics.insight}</b><p>ENG는 좋아요, 댓글, 저장, 공유를 조회수로 나눈 참여율입니다.</p><a href="admin.html">전체 리포트 보기 →</a></aside></div>` : `<div class="metric-empty"><span>↗</span><h3>아직 집계된 성과가 없어요</h3><p>${data.status === '미게시' ? '영상을 먼저 업로드하면 조회수, ENG, 클릭률을 분석할 수 있습니다.' : '게시 또는 검수가 완료된 뒤 지표가 자동으로 수집됩니다.'}</p><button data-metric-upload>이 영상 업로드하기</button></div>`;
+  modal.innerHTML = `<div class="video-modal-backdrop"><section class="video-modal metrics-modal" role="dialog" aria-modal="true" aria-labelledby="metricTitle"><header><div><p class="eyebrow">CONTENT ANALYTICS · ${data.id}</p><h2 id="metricTitle">영상 지표 분석</h2></div><button class="video-modal-close" aria-label="닫기">×</button></header><div class="metric-video-head"><img src="${data.image}" alt="${data.title}"><div><b>${data.title}</b><span>${data.product}</span><small>${data.channels.length ? data.channels.map(channel=>channel[1]).join(' · ') : '미게시 영상'}</small></div><em class="state ${data.status === '게시 완료' ? 'published' : 'draft'}">${data.status}</em></div><div class="metrics-body">${content}</div><footer><button data-close>닫기</button><a href="admin.html" class="primary">관리자 리포트 보기</a></footer></section></div>`;
+  document.body.style.overflow = 'hidden';
+  const close = () => { modal.innerHTML=''; document.body.style.overflow=''; };
+  modal.querySelector('.video-modal-close').addEventListener('click',close);
+  modal.querySelector('[data-close]').addEventListener('click',close);
+  if(modal.querySelector('[data-metric-upload]')) modal.querySelector('[data-metric-upload]').addEventListener('click',()=>{close();openReupload([id]);});
+}
+
+function openReupload(ids) {
+  const videos = ids.map(id => videoData[id]);
+  const modal = document.querySelector('#videoModal');
+  modal.innerHTML = `<div class="video-modal-backdrop"><section class="video-modal reupload-modal" role="dialog" aria-modal="true" aria-labelledby="reuploadTitle"><header><div><p class="eyebrow">REPUBLISH</p><h2 id="reuploadTitle">선택 영상 재업로드</h2></div><button class="video-modal-close" aria-label="닫기">×</button></header><div class="reupload-body"><div class="reupload-selected"><b>${videos.length}개 영상</b>${videos.map(video=>`<div><img src="${video.image}" alt=""><span><b>${video.title}</b><small>${video.method} · ${video.format}</small></span></div>`).join('')}</div><div class="reupload-settings"><h3>게시할 플랫폼</h3><label><input type="checkbox" checked><i class="channel-logo">◎</i><span><b>Instagram Reels</b><small>@clio_official</small></span></label><label><input type="checkbox" checked><i class="channel-logo">▶</i><span><b>YouTube Shorts</b><small>CLIO Official</small></span></label><label class="reupload-time">게시 시점<select><option>지금 바로 게시</option><option>오늘 오후 6:00 예약</option><option>날짜 · 시간 선택</option></select></label><p>재업로드하면 기존 게시물은 유지되고 새로운 게시물로 등록됩니다.</p></div></div><footer><button data-close>취소</button><button class="primary" id="confirmReupload">재업로드 시작</button></footer></section></div>`;
+  document.body.style.overflow='hidden';
+  const close=()=>{modal.innerHTML='';document.body.style.overflow='';};
+  modal.querySelector('.video-modal-close').addEventListener('click',close);
+  modal.querySelector('[data-close]').addEventListener('click',close);
+  modal.querySelector('#confirmReupload').addEventListener('click',()=>{const channelCount=modal.querySelectorAll('.reupload-settings input:checked').length;close();videoChecks.forEach(input=>input.checked=false);updateVideoSelection();showToast(`${videos.length}개 영상 재업로드를 시작했어요`,`${channelCount}개 플랫폼 · 진행 상태는 영상 목록에서 확인할 수 있습니다.`);});
+}
+
 document.querySelectorAll('[data-detail]').forEach(button => button.addEventListener('click', () => openDetail(button.dataset.detail)));
+document.querySelectorAll('[data-metrics]').forEach(button => button.addEventListener('click', () => openMetrics(button.dataset.metrics)));
+document.querySelector('#reuploadButton').addEventListener('click', () => openReupload(selectedVideoIds()));
 document.querySelectorAll('.video-thumb button').forEach(button => button.addEventListener('click', () => showToast('영상 미리보기를 재생합니다', '프로토타입 샘플 영상입니다.')));
 
 document.querySelector('#sortButton').addEventListener('click', event => {
@@ -111,3 +159,8 @@ function showToast(message, detail) {
   document.body.appendChild(toast);
   setTimeout(() => toast.remove(), 2600);
 }
+
+const requestedStatus = new URLSearchParams(location.search).get('status');
+if (requestedStatus && [...document.querySelector('#statusFilter').options].some(option => option.value === requestedStatus)) document.querySelector('#statusFilter').value = requestedStatus;
+applyFilters();
+updateVideoSelection();
